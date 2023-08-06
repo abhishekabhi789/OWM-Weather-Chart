@@ -23,7 +23,7 @@
       "show_chart": "Show Chart",
       "view_alert": "View Alert",
       "directions": "North,North-East,East,East-South,South,South-West,West,North-West",
-      "condition": "${Math.round(hourly.pop *100)}% chance for ${hourly.weather[0].description} from ${todayOrTomorrow(hourly.dt)}"
+      "condition": "${description} from ${time}"
    },
    "es": {
       "title": "Pronóstico del tiempo",
@@ -49,7 +49,7 @@
       "show_chart": "Mostrar gráfico",
       "view_alert": "Ver alerta",
       "directions": "Norte, Noreste, Este, Este-Sur, Sur, Suroeste, Oeste, Noroeste",
-      "condition": "${Math.round(hourly.pop *100)}% probabilidad de ${hourly.weather[0].description} a partir de ${todayOrTomorrow(hourly.dt)}"
+      "condition": "${description} a partir de ${time}"
    },
    "hi": {
       "title": "मौसम रिपोर्ट",
@@ -76,6 +76,6 @@
       "show_chart": "चार्ट दिखाएँ",
       "view_alert": "चेतावनी देखें",
       "directions": "उत्तर, उत्तर-पूर्व, पूर्व, पूर्व-दक्षिण, दक्षिण, दक्षिण-पश्चिम, पश्चिम, उत्तर-पश्चिम",
-      "condition": "${todayOrTomorrow(hourly.dt)} बजे से ${Math.round(hourly.pop *100)}% प्रतिशत ${hourly.weather[0].description} की संभावना"
+      "condition": "`${time} बजे से ${description} की संभावना`"
    }
 }

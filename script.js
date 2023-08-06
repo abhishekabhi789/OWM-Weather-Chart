@@ -209,7 +209,7 @@ function prepareChart() {
         theme: theme,
         zoomEnabled: true,
         title: {
-            text: strings.title,
+            text: getTitle(),
             fontSize: 20,
         }, subtitles: [
             {
@@ -257,9 +257,23 @@ function prepareChart() {
     changeToPanMode();
     addMarkerImages(chart);
 }
-function getSubtitle() {
+function getTitle() {
     return (cityData?.display_name) ? cityData.display_name : 'Your Location';
 }
+function getSubtitle() {
+    for (const it of owmData.hourly) {
+        if (it.weather[0].id < 800) {
+            const weather = it.weather[0];
+            const description = weather.description;
+            const time = todayOrTomorrow(it.dt);
+            const string = eval('`' + strings.condition + '`');
+            return string;
+        }
+    }
+    return 'No weather alert';
+}
+
+//todo weather summary as subtitle
 function getWeatherObject() {
     var weather = [];
     owmData.hourly.forEach(hourly => {
@@ -350,12 +364,12 @@ function getWindObject() {
 function fetchOwmData(lat, lon) {
     console.log("fetching data")
     //const apikey = "OWM_API_KEY";
-    //const apiUrl = `https://api.openweathermap.org/data/2.5/onecall?lat=${latitude}&lon=${longitude}&lang=${locale}&exclude=current,minutely,daily&appid=${apikey}`;
+    //const apiUrl = `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&lang=${locale}&exclude=current,minutely,daily&appid=${apikey}`;
     const apiUrl = `https://abhishekabhi789.pythonanywhere.com/owm?lat=${lat}&lon=${lon}&locale=${locale}`
     fetch(apiUrl)
         .then(response => {
             if (!response.ok) {
-                showError("Network Error", "Try again after sometime\n"+response.error);
+                showError("Network Error", "Try again after sometime\n" + response.error);
                 throw new Error('Network response was not ok.');
             }
             return response.json();
@@ -367,7 +381,7 @@ function fetchOwmData(lat, lon) {
         })
         .catch(error => {
             console.error('Error fetching data:', error);
-            showError("Failed to fetch data", "Try again after sometime \n"+ error);
+            showError("Failed to fetch data", "Try again after sometime \n" + error);
         });
 }
 
