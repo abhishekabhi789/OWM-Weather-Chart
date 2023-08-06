@@ -1,0 +1,44 @@
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no" />
+    <script type="text/javascript" src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
+    <script src="https://cdn.canvasjs.com/ga/canvasjs.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div id="chartContainer" class="chartContainer"></div>
+    <div class="controls">
+        <div id="unitsystem" class="unitradio">
+            <input type="radio" id="standard" name="unitsystem" value="standard">
+            <label for="standard">Standard</label><br>
+            <input type="radio" id="metric" name="unitsystem" value="metric" checked>
+            <label for="metric">Metric</label><br>
+            <input type="radio" id="imperial" name="unitsystem" value="imperial">
+            <label for="imperial">Imperial</label>
+        </div>
+        <div class="format-speed"><input type="checkbox" id="formatSpeed" checked><label for="formatSpeed">Speed in
+                kmph</label></div>
+        <div class="show-icons">
+            <input type="checkbox" id="showIcons" checked><label for="showIcons">Show Weather Icons</label>
+        </div>
+        <div class="darkmode">
+            <input type="checkbox" id="darkmode"><label for="darkmode">Dark Mode</label>
+        </div>
+        <div class="theme-alt">
+            <input type="checkbox" id="theme-alt" checked><label for="theme-alt">Use Alternative theme</label>
+        </div>
+
+    </div>
+    <div class="search-city">
+        <form>
+            <input type="text" id="cityInput" placeholder="Search city name" list="citynamesuggestions" required>
+            <datalist id="citynamesuggestions"></datalist>
+            <button id="reset-city" type="reset">Reset</button>
+        </form>
+    </div>
+    <script type="text/javascript" src="script.js"></script>
+</body>
+
+</html>
