@@ -273,7 +273,6 @@ function getSubtitle() {
     return 'No weather alert';
 }
 
-//todo weather summary as subtitle
 function getWeatherObject() {
     var weather = [];
     owmData.hourly.forEach(hourly => {
@@ -469,3 +468,11 @@ function initializeWindow() {
 initializeWindow();
 showError("Need your location", "Make sure you've granted location permission. Or try search your city")
 getLocation();
+if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function () {
+        navigator.serviceWorker
+            .register("assets/serviceWorker.js")
+            .then(res => console.log("service worker registered"))
+            .catch(err => console.log("service worker not registered", err))
+    })
+}

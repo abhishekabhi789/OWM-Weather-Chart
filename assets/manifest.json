@@ -1,0 +1,21 @@
+{
+    "name": "OWM Weather Chart",
+    "short_name": "OWM WC",
+    "id":"/OWM-Weather-Chart/",
+    "start_url": "/OWM-Weather-Chart/",
+    "display": "standalone",
+    "background_color": "#fdfdfd",
+    "theme_color": "#7fdaf7",
+    "icons": [
+        {
+            "src": "512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        },
+        {
+            "src": "192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        }
+    ]
+}
