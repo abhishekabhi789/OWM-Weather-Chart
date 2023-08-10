@@ -4,7 +4,7 @@
     "id":"/OWM-Weather-Chart/",
     "start_url": "/OWM-Weather-Chart/",
     "display": "standalone",
-    "background_color": "#fdfdfd",
+    "background_color": "#89e2ff",
     "theme_color": "#7fdaf7",
     "icons": [
         {

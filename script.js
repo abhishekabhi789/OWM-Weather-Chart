@@ -412,6 +412,7 @@ getId('cityInput').oninput = function () {
     }, 1000);
 }
 getId('cityInput').onchange = function () {
+    this.blur();
     clearTimeout(timeOut)
     const index = cityData.findIndex(item => item.display_name === this.value);
     if (index > -1) {
