@@ -3,7 +3,6 @@ var cityData = [];
 var timeOut = null;
 var customMarkers = [];
 var chart = null;
-var theme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark2' : 'light2';
 const locale = window.navigator.language.split('-')[0];
 
 function getStrings() {
@@ -51,6 +50,7 @@ getId('darkmode').addEventListener('change', function () {
     setTheme();
 });
 getId('reset-city').addEventListener('click', function () {
+    getId('save').style.display = 'none';
     getId('citynamesuggestions').innerHTML = '';
 });
 function showError(title, message) {
@@ -73,14 +73,17 @@ function refreshCustomMarker() {
         icons.forEach(it => it.style.visibility = 'hidden');
     }
 }
+function getTheme() {
+    return (getId('darkmode').checked) ? 'dark2' : 'light2';
+}
 function setTheme() {
     const themes = ['dark1', 'light1', 'dark2', 'light2'];
     const nightMode = getId('darkmode').checked;
-    var themeAlt = getId('theme-alt').checked;
+    const themeAlt = getId('theme-alt').checked;
     var themeindex = nightMode ? 0 : 1;
     themeindex = themeAlt ? themeindex + 2 : themeindex;
     chart?.set("theme", themes[themeindex]);
-    chart?.render()
+    chart?.render();
     document.body.style = nightMode ? 'background-color: #212121;color: #dadada;' : 'background-color: #fff;color: #000;';
 }
 function getUnit(index) {
@@ -206,7 +209,7 @@ function prepareChart() {
     customMarkers = [];
     chart = new CanvasJS.Chart("chartContainer", {
         animationEnabled: true,
-        theme: theme,
+        theme: getTheme(),
         zoomEnabled: true,
         title: {
             text: getTitle(),
@@ -258,7 +261,7 @@ function prepareChart() {
     addMarkerImages(chart);
 }
 function getTitle() {
-    return (cityData?.display_name) ? cityData.display_name : 'Your Location';
+    return getLocationName(owmData.lat, owmData.lon);
 }
 function getSubtitle() {
     for (const it of owmData.hourly) {
@@ -374,7 +377,6 @@ function fetchOwmData(lat, lon) {
             return response.json();
         })
         .then(data => {
-            console.log("request success");
             owmData = data;
             (!data.error) ? prepareChart(data) : showError('request failed', data.error);
         })
@@ -384,32 +386,58 @@ function fetchOwmData(lat, lon) {
         });
 }
 
-function printLocation(position) {
-    let latitude = position.coords.latitude;
-    let longitude = position.coords.longitude;
-    console.log("Latitude: ", latitude, "Longitude: ", longitude);
-    fetchOwmData(latitude, longitude);
-    showError('Getting data...', "");
-}
-
-function getLocation() {
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(printLocation);
+function getLocationName(lat, lon) {
+    if (cityData.name) {
+        return cityData.name;
+    } else if (localStorage.getItem('locName')) {
+        return localStorage.getItem('locName');
     } else {
-        console.log("Geolocation is not supported by this browser.");
-        showError("Failed to get location", "Geolocation is not supported or permisison is not granted. Try search with input field below");
+        const api = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&accept-language=${locale}&zoom=14&format=json`;
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', api, false);
+        xhr.send(null);
+        if (xhr.status == 200) {
+            const data = JSON.parse(xhr.response);
+            const name = data.name;
+            getId('cityInput').value = name;
+            return name;
+        }
     }
 }
-
+function fetchWithCurrentLocation(position) {
+    try {
+        let lat = position.coords.latitude;
+        let lon = position.coords.longitude;
+        fetchOwmData(lat, lon);
+    } catch (error) {
+        showError("Failed to get location", "Try search with input field below.");
+        console.error("failed to get location", error);
+    }
+}
+function getLocation() {
+    const myLat = localStorage.getItem('mylat');
+    const myLon = localStorage.getItem('mylon');
+    if (myLat & myLon) {
+        getId('cityInput').value = getLocationName();
+        fetchOwmData(myLat, myLon);
+    } else if (navigator.geolocation) {
+        showError("Location access needed", "Location information is needed to get weather data for you.")
+        navigator.geolocation.getCurrentPosition(fetchWithCurrentLocation, null, { enableHighAccuracy: true });
+    } else {
+        console.error("Geolocation is not supported by this browser.");
+        showError("Failed to get location", "Geolocation is not supported or permisison is not granted. Try search with input field below.");
+    }
+}
 getId('cityInput').oninput = function () {
     const input = this.value;
+    getId('save').style.display = 'none';
     if (timeOut) {
         clearTimeout(timeOut);
     }
     timeOut = setTimeout(() => {
-        console.log(input);
         getCityNames(input);
     }, 1000);
+
 }
 getId('cityInput').onchange = function () {
     this.blur();
@@ -418,18 +446,24 @@ getId('cityInput').onchange = function () {
     if (index > -1) {
         const lat = cityData[index].lat;
         const lon = cityData[index].lon;
-        console.log("Latitude: ", lat, "Longitude: ", lon);
-        this.value = '';
         getId('citynamesuggestions').innerHTML = '';
         cityData = cityData[index];
-        console.log("finalised");
+        this.value = getLocationName();
+        getId('save').style.display = 'block';
         fetchOwmData(lat, lon);
     } else {
         console.error('No data found for the selected city.' + index);
     }
 }
+getId('save').onclick = function (e) {
+    e.preventDefault();
+    localStorage.setItem('mylat', owmData.lat);
+    localStorage.setItem('mylon', owmData.lon);
+    localStorage.setItem('locName', cityData.name);
+    getId('save').style.display = 'none';
+}
 function getCityNames(query) {
-    const apiUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json`;
+    const apiUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&accept-language=${locale}&format=json`;
 
     fetch(apiUrl)
         .then(response => response.json())
@@ -458,7 +492,6 @@ function getCityNames(query) {
 window.onresize = function () {
     if (chart) {
         refreshCustomMarker();
-        console.log('window resize');
     }
 }
 
@@ -467,7 +500,7 @@ function initializeWindow() {
     setTheme();
 }
 initializeWindow();
-showError("Need your location", "Make sure you've granted location permission. Or try search your city")
+showError("Loading...", "")
 getLocation();
 if ("serviceWorker" in navigator) {
     window.addEventListener("load", function () {
