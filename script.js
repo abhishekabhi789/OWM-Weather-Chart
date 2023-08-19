@@ -51,6 +51,7 @@ getId('darkmode').addEventListener('change', function () {
 });
 getId('reset-city').addEventListener('click', function () {
     getId('save').style.display = 'none';
+    getId('cityInput').focus();
     getId('citynamesuggestions').innerHTML = '';
 });
 function showError(title, message) {
@@ -399,7 +400,6 @@ function getLocationName(lat, lon) {
         if (xhr.status == 200) {
             const data = JSON.parse(xhr.response);
             const name = data.name;
-            getId('cityInput').value = name;
             return name;
         }
     }
@@ -418,7 +418,6 @@ function getLocation() {
     const myLat = localStorage.getItem('mylat');
     const myLon = localStorage.getItem('mylon');
     if (myLat & myLon) {
-        getId('cityInput').value = getLocationName();
         fetchOwmData(myLat, myLon);
     } else if (navigator.geolocation) {
         showError("Location access needed", "Location information is needed to get weather data for you.")
