@@ -2,7 +2,7 @@ body {
     font-family: Arial, sans-serif;
     margin: 10px;
     user-select: none;
-    overflow: hidden;
+    max-height: 97vh;
 }
 
 .chartContainer {
@@ -81,7 +81,7 @@ button {
 .darkmode input:checked,
 div.chartContainer {
     color: #dadada;
-    background-color: #212121;
+    background-color: #32373a;
 }
 
 /* Media query for mobile screens */

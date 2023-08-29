@@ -1,6 +1,7 @@
 {
     "name": "OWM Weather Chart",
     "short_name": "OWM WC",
+    "description":"Multi-series chart made with CanvasJS, showing hourly weather forecast from OpenWeatherMap OneCall data.",
     "id":"/OWM-Weather-Chart/",
     "start_url": "/OWM-Weather-Chart/",
     "display": "standalone",

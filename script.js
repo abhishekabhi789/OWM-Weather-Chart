@@ -85,7 +85,7 @@ function setTheme() {
     themeindex = themeAlt ? themeindex + 2 : themeindex;
     chart?.set("theme", themes[themeindex]);
     chart?.render();
-    document.body.style = nightMode ? 'background-color: #212121;color: #dadada;' : 'background-color: #fff;color: #000;';
+    document.body.style = nightMode ? 'background-color: #32373a;color: #dadada;' : 'background-color: #fff;color: #000;';
 }
 function getUnit(index) {
     if (formatSpeed() && index === 1) return (unitSystem() != 'imperial') ? 'kmph' : 'mph';
@@ -374,7 +374,7 @@ function fetchOwmData(lat, lon) {
             if (!response.ok) {
                 showError("Network Error", "Try again after sometime\n" + response.error);
                 throw new Error('Network response was not ok.');
-            }
+    }
             return response.json();
         })
         .then(data => {
