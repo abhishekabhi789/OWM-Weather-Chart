@@ -85,7 +85,8 @@ function setTheme() {
     themeindex = themeAlt ? themeindex + 2 : themeindex;
     chart?.set("theme", themes[themeindex]);
     chart?.render();
-    document.body.style = nightMode ? 'background-color: #32373a;color: #dadada;' : 'background-color: #fff;color: #000;';
+    const bgColor = (getId('theme-alt').checked)?"#32373a":"#2a2a2a";
+    document.body.style = nightMode ? `background-color: ${bgColor};color: #dadada;` : 'background-color: #fff;color: #000;';
 }
 function getUnit(index) {
     if (formatSpeed() && index === 1) return (unitSystem() != 'imperial') ? 'kmph' : 'mph';
@@ -372,7 +373,7 @@ function fetchOwmData(lat, lon) {
     fetch(apiUrl)
         .then(response => {
             if (!response.ok) {
-                showError("Network Error", "Try again after sometime\n" + response.error);
+                showError("Network Error", "Reload or try again after sometime\n" + response.error);
                 throw new Error('Network response was not ok.');
     }
             return response.json();
@@ -383,7 +384,7 @@ function fetchOwmData(lat, lon) {
         })
         .catch(error => {
             console.error('Error fetching data:', error);
-            showError("Failed to fetch data", "Try again after sometime \n" + error);
+            showError("Failed to fetch data", "Reload or try again after sometime \n" + error);
         });
 }
 
