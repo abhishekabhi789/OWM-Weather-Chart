@@ -32,6 +32,12 @@ def get_count():
         reset_count()
         return 0
 
+def value_to_color(value):
+    value = max(0, min(100, value))
+    red = int(value * 2.55)
+    green = int(255 - red)
+    return f"rgb({red}, {green}, 0)"
+
 if "DATE" not in os.environ or "COUNT" not in os.environ:
     reset_count()
 
@@ -60,6 +66,18 @@ def get_weather():
 def owm_count():
     count = get_count()
     return str(count), 200
+
+@app.route("/quotabadge", methods=["GET"])
+def get_quota_badge():
+    usage = min(round((get_count() / DAILY_CALL_LIMIT) * 100, 1), 100)
+    badge = {
+        "schemaVersion": 1,
+        "label": "Dailyt Quota",
+        "message": str(usage) + "%",
+        "color": value_to_color(usage),
+        "style": "square",
+    }
+    return jsonify(badge)
 
 if __name__ == "__main__":
     app.run()

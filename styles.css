@@ -16,7 +16,7 @@ body {
     height: 10%;
     display: flex;
     flex-wrap: wrap;
-    justify-content: center ;
+    justify-content: center;
     align-items: center;
     align-content: center;
 }
@@ -71,11 +71,10 @@ button {
     margin: auto;
     width: fit-content;
     display: flex;
-    align-content: center;
-    justify-content: center;
-    align-items: center;
-    border: 2px solid #7fdaf7;
-    border-radius: 5px;
+}
+
+.footer>* {
+    padding: 5px;
 }
 
 .darkmode input:checked,
@@ -89,6 +88,7 @@ div.chartContainer {
     .chartContainer {
         height: 60%;
     }
+
     .controls {
         height: 20%;
         justify-content: center;
