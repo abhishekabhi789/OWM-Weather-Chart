@@ -3,6 +3,7 @@ body {
     margin: 10px;
     user-select: none;
     max-height: 97vh;
+    max-width: 100vw;
 }
 
 .chartContainer {
@@ -71,6 +72,10 @@ button {
     margin: auto;
     width: fit-content;
     display: flex;
+    align-content: space-between;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 .footer>* {
