@@ -454,7 +454,7 @@ getId('city-input').onchange = function () {
     if (index > -1) {
         const lat = cityData[index].lat;
         const lon = cityData[index].lon;
-        getId('citynamesuggestions').innerHTML = '';
+        getId('city-name-suggestions').innerHTML = '';
         cityData = cityData[index];
         this.value = getLocationName();
         getId('save').style.display = 'block';
@@ -472,11 +472,10 @@ getId('save').onclick = function (e) {
 }
 function getCityNames(query) {
     const apiUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&accept-language=${locale}&format=json`;
-
     fetch(apiUrl)
         .then(response => response.json())
         .then(data => {
-            let datalist = getId('citynamesuggestions');
+            let datalist = getId('city-name-suggestions');
             datalist.innerHTML = '';
             if (data.length > 0) {
                 cityData = data;
