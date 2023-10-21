@@ -22,19 +22,26 @@ body {
     align-content: center;
 }
 
-.unitradio {
+.unit-systems-boxes {
     display: flex;
     flex-wrap: nowrap;
     justify-content: center;
     align-items: center;
 }
 
-.unitradio,
-.format-speed,
-.show-icons,
-.darkmode,
-.theme-alt {
-    height: fit-content;
+.unit-systems-boxes>.unit-system,
+.format-speed-box,
+.show-icons-box,
+.dark-mode-box,
+.theme-alt-box {
+    display: inline-block;
+    position: relative;
+    z-index: 1;
+    padding: 0.5em;
+    margin:0.2em;
+    background-color: #88888844;
+    border: 2px;
+    border-radius: 10px;
 }
 
 form {
@@ -82,7 +89,7 @@ button {
     padding: 5px;
 }
 
-.darkmode input:checked,
+.dark-mode-box input:checked,
 div.chartContainer {
     color: #dadada;
     background-color: #32373a;

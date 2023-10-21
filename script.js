@@ -4,7 +4,7 @@ var timeOut = null;
 var customMarkers = [];
 var chart = null;
 const locale = window.navigator.language.split('-')[0];
-
+const constants = { UNITS: { METRIC: "metric", IMPERIAL: "imperial", STANDARD: "standard" }, VISIBILITY: { VISIBLE: "visible", HIDDEN: "hidden" } }
 function getStrings() {
     const xhr = new XMLHttpRequest();
     xhr.open('GET', 'strings.json', false);
@@ -21,32 +21,45 @@ const strings = getStrings();
 function getId(el) {
     return document.getElementById(el);
 }
-function showWeatherIcons() {
-    return document.getElementById('showIcons').checked;
+function weatherIconEnabled() {
+    return document.getElementById('show-icons').checked;
 }
-function formatSpeed() {
-    return document.getElementById('formatSpeed').checked;
+function willFormatSpeed() {
+    return document.getElementById('format-speed').checked;
 }
-function unitSystem() {
-    return document.querySelector('input[name="unitsystem"]:checked').value;
+function chosenUnitSystem() {
+    return document.querySelector('input[name="unit-radio"]:checked').value;
 }
-getId('unitsystem').addEventListener('change', function () {
-    getId('formatSpeed').disabled = event.target.value == 'imperial' ? true : false;
-    chart.options.data = [getWeatherObject(), getTemperatureObject(), getHumidityObject(), getWindObject()];
-    chart.render();
-    refreshCustomMarker();
+const unitRadios = getId("unit-systems-boxes");
+unitRadios.querySelectorAll('.unit-system').forEach(function (unitsystem) {
+    unitsystem.addEventListener('click', function () {
+        const nowSelected = unitsystem.querySelector('input[type="radio"]');
+        const alreadySelected = unitRadios.querySelector('input[type="radio"]:checked');
+        getId(nowSelected.value).checked = true;
+        if (alreadySelected.id != nowSelected.id) {
+            getId('format-speed').disabled = nowSelected.id == constants.UNITS.IMPERIAL ? true : false;
+            chart.options.data = [getWeatherObject(), getTemperatureObject(), getHumidityObject(), getWindObject()];
+            chart.render();
+            refreshCustomMarker();
+        }
+    });
 });
-getId('formatSpeed').addEventListener('change', function () {
+
+getId('format-speed-box').addEventListener('click', function () {
+    getId('format-speed').checked = getId('format-speed').checked == false;
     chart.options.data[3] = getWindObject();
     chart.render();
 });
-getId('showIcons').addEventListener('change', function () {
+getId('show-icons-box').addEventListener('click', function () {
+    getId('show-icons').checked = getId('show-icons').checked == false;
     refreshCustomMarker();
 });
-getId('theme-alt').addEventListener('change', function () {
+getId('theme-alt-box').addEventListener('click', function () {
+    getId('theme-alt').checked = getId('theme-alt').checked == false;
     setTheme();
 });
-getId('darkmode').addEventListener('change', function () {
+getId('dark-mode-box').addEventListener('click', function () {
+    getId('dark-mode').checked = getId('dark-mode').checked == false;
     setTheme();
 });
 getId('reset-city').addEventListener('click', function () {
@@ -67,46 +80,46 @@ function showError(title, message) {
 }
 function refreshCustomMarker() {
     let icons = document.querySelectorAll('#customMarker')
-    if (showWeatherIcons()) {
+    if (weatherIconEnabled()) {
         repositionCustomMarker()
-        icons.forEach(it => it.style.visibility = 'visible');
+        icons.forEach(it => it.style.visibility = constants.VISIBILITY.VISIBLE);
     } else {
-        icons.forEach(it => it.style.visibility = 'hidden');
+        icons.forEach(it => it.style.visibility = constants.VISIBILITY.HIDDEN);
     }
 }
 function getTheme() {
-    return (getId('darkmode').checked) ? 'dark2' : 'light2';
+    return (getId('dark-mode').checked) ? 'dark2' : 'light2';
 }
 function setTheme() {
     const themes = ['dark1', 'light1', 'dark2', 'light2'];
-    const nightMode = getId('darkmode').checked;
+    const nightMode = getId('dark-mode').checked;
     const themeAlt = getId('theme-alt').checked;
     var themeindex = nightMode ? 0 : 1;
     themeindex = themeAlt ? themeindex + 2 : themeindex;
     chart?.set("theme", themes[themeindex]);
     chart?.render();
-    const bgColor = (getId('theme-alt').checked)?"#32373a":"#2a2a2a";
+    const bgColor = (getId('theme-alt').checked) ? "#32373a" : "#2a2a2a";
     document.body.style = nightMode ? `background-color: ${bgColor};color: #dadada;` : 'background-color: #fff;color: #000;';
 }
 function getUnit(index) {
-    if (formatSpeed() && index === 1) return (unitSystem() != 'imperial') ? 'kmph' : 'mph';
-    switch (unitSystem()) {
-        case "metric":
-            let metricUnits = ["°C", "m/s", "mm", "m", "hPa"];
+    if (willFormatSpeed() && index === 1) return (chosenUnitSystem() != constants.UNITS.IMPERIAL) ? 'kmph' : 'mph';
+    switch (chosenUnitSystem()) {
+        case constants.UNITS.METRIC:
+            const metricUnits = ["°C", "m/s", "mm", "m", "hPa"];
             return metricUnits[index];
-        case "imperial":
-            let imperialUnits = ["°F", "mph", "mm", "m", "hPa"];
+        case constants.UNITS.IMPERIAL:
+            const imperialUnits = ["°F", "mph", "mm", "m", "hPa"];
             return imperialUnits[index];
         default:
-            let standardUnits = ["K", "m/s", "mm", "m", "hPa"];
+            const standardUnits = ["K", "m/s", "mm", "m", "hPa"];
             return standardUnits[index];
     }
 }
 function getTemperature(t) {
-    switch (unitSystem()) {
-        case "metric":
+    switch (chosenUnitSystem()) {
+        case constants.UNITS.METRIC:
             return (t - 273.15).toFixed(2);
-        case "imperial":
+        case  constants.UNITS.IMPERIAL:
             return (((t - 273.15) * (9 / 5)) + 32).toFixed(2);
         default:
             return t;
@@ -114,15 +127,15 @@ function getTemperature(t) {
 }
 
 function getSpeed(wind) {
-    switch (unitSystem()) {
-        case 'metric': {
-            return (formatSpeed()) ? (wind * 3.6).toFixed(2) : wind;
+    switch (chosenUnitSystem()) {
+        case constants.UNITS.METRIC: {
+            return (willFormatSpeed()) ? (wind * 3.6).toFixed(2) : wind;
         }
-        case 'imperial': {
+        case  constants.UNITS.IMPERIAL: {
             return (wind * 2.23694).toFixed(2);
         }
         default: {
-            return (formatSpeed()) ? (wind * 3.6).toFixed(2) : wind;
+            return (willFormatSpeed()) ? (wind * 3.6).toFixed(2) : wind;
         }
     }
 }
@@ -375,7 +388,7 @@ function fetchOwmData(lat, lon) {
             if (!response.ok) {
                 showError("Network Error", "Reload or try again after sometime\n" + response.error);
                 throw new Error('Network response was not ok.');
-    }
+            }
             return response.json();
         })
         .then(data => {
@@ -405,6 +418,7 @@ function getLocationName(lat, lon) {
         }
     }
 }
+
 function fetchWithCurrentLocation(position) {
     try {
         let lat = position.coords.latitude;
@@ -428,7 +442,7 @@ function getLocation() {
         showError("Failed to get location", "Geolocation is not supported or permisison is not granted. Try search with input field below.");
     }
 }
-getId('cityInput').oninput = function () {
+getId('city-input').oninput = function () {
     const input = this.value;
     getId('save').style.display = 'none';
     if (timeOut) {
@@ -439,7 +453,7 @@ getId('cityInput').oninput = function () {
     }, 1000);
 
 }
-getId('cityInput').onchange = function () {
+getId('city-input').onchange = function () {
     this.blur();
     clearTimeout(timeOut)
     const index = cityData.findIndex(item => item.display_name === this.value);
@@ -479,7 +493,7 @@ function getCityNames(query) {
                 })
             } else {
                 datalist.innerHTML = '';
-                let field = getId('cityInput');
+                let field = getId('city-input');
                 field.setCustomValidity("No city found!");
                 field.reportValidity();
                 console.log("No suggestions for ", query);
@@ -496,7 +510,7 @@ window.onresize = function () {
 }
 
 function initializeWindow() {
-    getId('darkmode').checked = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    getId('dark-mode').checked = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
     setTheme();
 }
 initializeWindow();
