@@ -34,38 +34,31 @@ const unitRadios = getId("unit-systems-boxes");
 unitRadios.querySelectorAll('.unit-system').forEach(function (unitsystem) {
     unitsystem.addEventListener('click', function () {
         const nowSelected = unitsystem.querySelector('input[type="radio"]');
-        const alreadySelected = unitRadios.querySelector('input[type="radio"]:checked');
         getId(nowSelected.value).checked = true;
-        if (alreadySelected.id != nowSelected.id) {
-            getId('format-speed').disabled = nowSelected.id == constants.UNITS.IMPERIAL ? true : false;
-            chart.options.data = [getWeatherObject(), getTemperatureObject(), getHumidityObject(), getWindObject()];
-            chart.render();
-            refreshCustomMarker();
-        }
+        getId('format-speed').disabled = nowSelected.id == constants.UNITS.IMPERIAL ? true : false;
+        chart.options.data = [getWeatherObject(), getTemperatureObject(), getHumidityObject(), getWindObject()];
+        chart.render();
+        refreshCustomMarker();
     });
 });
 
 getId('format-speed-box').addEventListener('click', function () {
-    getId('format-speed').checked = getId('format-speed').checked == false;
     chart.options.data[3] = getWindObject();
     chart.render();
 });
 getId('show-icons-box').addEventListener('click', function () {
-    getId('show-icons').checked = getId('show-icons').checked == false;
     refreshCustomMarker();
 });
 getId('theme-alt-box').addEventListener('click', function () {
-    getId('theme-alt').checked = getId('theme-alt').checked == false;
     setTheme();
 });
 getId('dark-mode-box').addEventListener('click', function () {
-    getId('dark-mode').checked = getId('dark-mode').checked == false;
     setTheme();
 });
 getId('reset-city').addEventListener('click', function () {
     getId('save').style.display = 'none';
-    getId('cityInput').focus();
-    getId('citynamesuggestions').innerHTML = '';
+    getId('city-input').focus();
+    getId('city-name-suggestions').innerHTML = '';
 });
 function showError(title, message) {
     let errorContainer = document.createElement('div');
@@ -76,7 +69,7 @@ function showError(title, message) {
     let p = document.createElement('p');
     p.innerText = message;
     errorContainer.appendChild(p)
-    getId('chartContainer').replaceChildren(errorContainer)
+    getId('chart-container').replaceChildren(errorContainer)
 }
 function refreshCustomMarker() {
     let icons = document.querySelectorAll('#customMarker')
@@ -119,7 +112,7 @@ function getTemperature(t) {
     switch (chosenUnitSystem()) {
         case constants.UNITS.METRIC:
             return (t - 273.15).toFixed(2);
-        case  constants.UNITS.IMPERIAL:
+        case constants.UNITS.IMPERIAL:
             return (((t - 273.15) * (9 / 5)) + 32).toFixed(2);
         default:
             return t;
@@ -131,7 +124,7 @@ function getSpeed(wind) {
         case constants.UNITS.METRIC: {
             return (willFormatSpeed()) ? (wind * 3.6).toFixed(2) : wind;
         }
-        case  constants.UNITS.IMPERIAL: {
+        case constants.UNITS.IMPERIAL: {
             return (wind * 2.23694).toFixed(2);
         }
         default: {
@@ -181,7 +174,7 @@ function addMarkerImages(chart) {
             .css("display", "none")
             .css("height", 30)
             .css("width", 30)
-            .appendTo($("#chartContainer>.canvasjs-chart-container"))
+            .appendTo($("#chart-container>.canvasjs-chart-container"))
         );
         positionMarkerImage(customMarkers[i], i);
     }
@@ -222,7 +215,7 @@ function changeToPanMode() {
 }
 function prepareChart() {
     customMarkers = [];
-    chart = new CanvasJS.Chart("chartContainer", {
+    chart = new CanvasJS.Chart("chart-container", {
         animationEnabled: true,
         theme: getTheme(),
         zoomEnabled: true,
@@ -384,6 +377,7 @@ function fetchOwmData(lat, lon) {
     //const apiUrl = `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&lang=${locale}&exclude=current,minutely,daily&appid=${apikey}`;
     const apiUrl = `https://abhishekabhi789.pythonanywhere.com/owm?lat=${lat}&lon=${lon}&locale=${locale}`
     fetch(apiUrl)
+    // fetch("/testdata.json") //debug
         .then(response => {
             if (!response.ok) {
                 showError("Network Error", "Reload or try again after sometime\n" + response.error);
