@@ -43,6 +43,7 @@ unitRadios.querySelectorAll('.unit-system').forEach(function (unitsystem) {
 });
 
 getId('format-speed-box').addEventListener('click', function () {
+    if (chosenUnitSystem() != constants.UNITS.IMPERIAL) getId('format-speed').checked = getId('format-speed').checked ? false : true
     chart.options.data[3] = getWindObject();
     chart.render();
 });
@@ -377,7 +378,7 @@ function fetchOwmData(lat, lon) {
     //const apiUrl = `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&lang=${locale}&exclude=current,minutely,daily&appid=${apikey}`;
     const apiUrl = `https://abhishekabhi789.pythonanywhere.com/owm?lat=${lat}&lon=${lon}&locale=${locale}`
     fetch(apiUrl)
-    // fetch("/testdata.json") //debug
+    // fetch("/owm.json") //debug
         .then(response => {
             if (!response.ok) {
                 showError("Network Error", "Reload or try again after sometime\n" + response.error);

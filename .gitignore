@@ -1,2 +1,3 @@
 /.vscode
-testdata.json
+owm.json
+UpdateCachedData.ps1
