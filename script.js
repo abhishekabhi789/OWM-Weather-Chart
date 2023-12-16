@@ -378,7 +378,7 @@ function fetchOwmData(lat, lon) {
     //const apiUrl = `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&lang=${locale}&exclude=current,minutely,daily&appid=${apikey}`;
     const apiUrl = `https://abhishekabhi789.pythonanywhere.com/owm?lat=${lat}&lon=${lon}&locale=${locale}`
     fetch(apiUrl)
-    // fetch("/owm.json") //debug
+        // fetch("/owm.json") //debug
         .then(response => {
             if (!response.ok) {
                 showError("Network Error", "Reload or try again after sometime\n" + response.error);
@@ -463,6 +463,16 @@ getId('city-input').onchange = function () {
     } else {
         console.error('No data found for the selected city.' + index);
     }
+}
+getId('city-input').onfocus = function () {
+    if (window.innerWidth < window.innerHeight) {
+        getId('controls').style.display = 'none';
+        getId('footer').style.display = 'none';
+    }
+}
+getId('city-input').onblur = function () {
+    getId('controls').style.display = 'flex';
+    getId('footer').style.display = 'flex';
 }
 getId('save').onclick = function (e) {
     e.preventDefault();

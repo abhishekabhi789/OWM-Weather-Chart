@@ -72,7 +72,7 @@ def get_quota_badge():
     usage = min(round((get_count() / DAILY_CALL_LIMIT) * 100, 1), 100)
     badge = {
         "schemaVersion": 1,
-        "label": "Dailyt Quota",
+        "label": "Daily Quota",
         "message": str(usage) + "%",
         "color": value_to_color(usage),
         "style": "square",
