@@ -1,5 +1,5 @@
 :root {
-    --color-primary: #76c8e2;
+    --color-primary: #7fdaf7;
     --color-neutral: #787878;
 }
 
@@ -61,20 +61,32 @@ body {
     cursor: not-allowed;
 }
 
-.unit-systems-boxes {
+.unit-systems-boxes,
+.search-city {
     gap: 5px;
+    margin-bottom: 0;
 }
 
 .search-city input[type="text"] {
     padding: 5px 10px;
     border: 1px solid var(--color-neutral);
     border-radius: 5px;
+    color: inherit;
     background-color: inherit;
+}
+
+@media (hover: hover) {
+
+    label:hover,
+    input:hover,
+    button:hover {
+        transform: scale(1.01);
+        box-shadow: 0px 0px 10px 1px var(--color-neutral);
+    }
 }
 
 .search-city button {
     padding: 5px 10px;
-    margin-left: 5px;
     border: none;
     border-radius: 5px;
     background-color: var(--color-primary);
@@ -98,7 +110,7 @@ body {
     }
 
     .controls {
-        font-size: smaller;
+        font-size: small;
     }
 
     .footer {
