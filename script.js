@@ -24,26 +24,26 @@ function getId(el) {
 function weatherIconEnabled() {
     return document.getElementById('show-icons').checked;
 }
-function willFormatSpeed() {
-    return document.getElementById('format-speed').checked;
+function convertSpeed() {
+    return document.getElementById('convert-speed').checked;
 }
 function chosenUnitSystem() {
     return document.querySelector('input[name="unit-radio"]:checked').value;
 }
 const unitRadios = getId("unit-systems-boxes");
-unitRadios.querySelectorAll('.unit-system').forEach(function (unitsystem) {
+unitRadios.childNodes.forEach(function (unitsystem) {
     unitsystem.addEventListener('click', function () {
         const nowSelected = unitsystem.querySelector('input[type="radio"]');
         getId(nowSelected.value).checked = true;
-        getId('format-speed').disabled = nowSelected.id == constants.UNITS.IMPERIAL ? true : false;
+        getId('convert-speed').disabled = nowSelected.id == constants.UNITS.IMPERIAL ? true : false;
         chart.options.data = [getWeatherObject(), getTemperatureObject(), getHumidityObject(), getWindObject()];
         chart.render();
         refreshCustomMarker();
     });
 });
 
-getId('format-speed-box').addEventListener('click', function () {
-    if (chosenUnitSystem() != constants.UNITS.IMPERIAL) getId('format-speed').checked = getId('format-speed').checked ? false : true
+getId('convert-speed-box').addEventListener('click', function () {
+    if (chosenUnitSystem() != constants.UNITS.IMPERIAL) getId('convert-speed').checked = getId('convert-speed').checked ? false : true
     chart.options.data[3] = getWindObject();
     chart.render();
 });
@@ -94,9 +94,9 @@ function setTheme() {
     chart?.render();
     const bgColor = (getId('theme-alt').checked) ? "#32373a" : "#2a2a2a";
     document.body.style = nightMode ? `background-color: ${bgColor};color: #dadada;` : 'background-color: #fff;color: #000;';
-}
+    }
 function getUnit(index) {
-    if (willFormatSpeed() && index === 1) return (chosenUnitSystem() != constants.UNITS.IMPERIAL) ? 'kmph' : 'mph';
+    if (convertSpeed() && index === 1) return (chosenUnitSystem() != constants.UNITS.IMPERIAL) ? 'kmph' : 'mph';
     switch (chosenUnitSystem()) {
         case constants.UNITS.METRIC:
             const metricUnits = ["°C", "m/s", "mm", "m", "hPa"];
@@ -123,13 +123,13 @@ function getTemperature(t) {
 function getSpeed(wind) {
     switch (chosenUnitSystem()) {
         case constants.UNITS.METRIC: {
-            return (willFormatSpeed()) ? (wind * 3.6).toFixed(2) : wind;
+            return (convertSpeed()) ? (wind * 3.6).toFixed(2) : wind;
         }
         case constants.UNITS.IMPERIAL: {
             return (wind * 2.23694).toFixed(2);
         }
         default: {
-            return (willFormatSpeed()) ? (wind * 3.6).toFixed(2) : wind;
+            return (convertSpeed()) ? (wind * 3.6).toFixed(2) : wind;
         }
     }
 }
@@ -418,6 +418,7 @@ function fetchWithCurrentLocation(position) {
     try {
         let lat = position.coords.latitude;
         let lon = position.coords.longitude;
+        showError("Hold on...", "Contacting servers")
         fetchOwmData(lat, lon);
     } catch (error) {
         showError("Failed to get location", "Try search with input field below.");
@@ -430,7 +431,7 @@ function getLocation() {
     if (myLat & myLon) {
         fetchOwmData(myLat, myLon);
     } else if (navigator.geolocation) {
-        showError("Location access needed", "Location information is needed to get weather data for you.")
+        showError("Location info needed", "Location information is needed to get weather data for you.")
         navigator.geolocation.getCurrentPosition(fetchWithCurrentLocation, null, { enableHighAccuracy: true });
     } else {
         console.error("Geolocation is not supported by this browser.");
