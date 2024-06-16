@@ -18,7 +18,7 @@ function getStrings() {
     }
 }
 const strings = getStrings();
-function getId(el) {
+function getById(el) {
     return document.getElementById(el);
 }
 function weatherIconEnabled() {
@@ -30,36 +30,36 @@ function convertSpeed() {
 function chosenUnitSystem() {
     return document.querySelector('input[name="unit-radio"]:checked').value;
 }
-const unitRadios = getId("unit-systems-boxes");
+const unitRadios = getById("unit-systems-boxes");
 unitRadios.childNodes.forEach(function (unitsystem) {
     unitsystem.addEventListener('click', function () {
         const nowSelected = unitsystem.querySelector('input[type="radio"]');
-        getId(nowSelected.value).checked = true;
-        getId('convert-speed').disabled = nowSelected.id == constants.UNITS.IMPERIAL ? true : false;
+        getById(nowSelected.value).checked = true;
+        getById('convert-speed').disabled = nowSelected.id == constants.UNITS.IMPERIAL ? true : false;
         chart.options.data = [getWeatherObject(), getTemperatureObject(), getHumidityObject(), getWindObject()];
         chart.render();
         refreshCustomMarker();
     });
 });
 
-getId('convert-speed-box').addEventListener('click', function () {
-    if (chosenUnitSystem() != constants.UNITS.IMPERIAL) getId('convert-speed').checked = getId('convert-speed').checked ? false : true
+getById('convert-speed-box').addEventListener('click', function () {
+    if (chosenUnitSystem() != constants.UNITS.IMPERIAL) getById('convert-speed').checked = getById('convert-speed').checked ? false : true
     chart.options.data[3] = getWindObject();
     chart.render();
 });
-getId('show-icons-box').addEventListener('click', function () {
+getById('show-icons-box').addEventListener('click', function () {
     refreshCustomMarker();
 });
-getId('theme-alt-box').addEventListener('click', function () {
+getById('theme-alt-box').addEventListener('click', function () {
     setTheme();
 });
-getId('dark-mode-box').addEventListener('click', function () {
+getById('dark-mode-box').addEventListener('click', function () {
     setTheme();
 });
-getId('reset-city').addEventListener('click', function () {
-    getId('save').style.display = 'none';
-    getId('city-input').focus();
-    getId('city-name-suggestions').innerHTML = '';
+getById('reset-city').addEventListener('click', function () {
+    getById('save').style.display = 'none';
+    getById('city-input').focus();
+    getById('city-name-suggestions').innerHTML = '';
 });
 function showError(title, message) {
     let errorContainer = document.createElement('div');
@@ -70,7 +70,7 @@ function showError(title, message) {
     let p = document.createElement('p');
     p.innerText = message;
     errorContainer.appendChild(p)
-    getId('chart-container').replaceChildren(errorContainer)
+    getById('chart-container').replaceChildren(errorContainer)
 }
 function refreshCustomMarker() {
     let icons = document.querySelectorAll('#customMarker')
@@ -82,17 +82,17 @@ function refreshCustomMarker() {
     }
 }
 function getTheme() {
-    return (getId('dark-mode').checked) ? 'dark2' : 'light2';
+    return (getById('dark-mode').checked) ? 'dark2' : 'light2';
 }
 function setTheme() {
     const themes = ['dark1', 'light1', 'dark2', 'light2'];
-    const nightMode = getId('dark-mode').checked;
-    const themeAlt = getId('theme-alt').checked;
+    const nightMode = getById('dark-mode').checked;
+    const themeAlt = getById('theme-alt').checked;
     var themeindex = nightMode ? 0 : 1;
     themeindex = themeAlt ? themeindex + 2 : themeindex;
     chart?.set("theme", themes[themeindex]);
     chart?.render();
-    const bgColor = (getId('theme-alt').checked) ? "#32373a" : "#2a2a2a";
+    const bgColor = (getById('theme-alt').checked) ? "#32373a" : "#2a2a2a";
     document.body.style = nightMode ? `background-color: ${bgColor};color: #dadada;` : 'background-color: #fff;color: #000;';
     }
 function getUnit(index) {
@@ -438,9 +438,9 @@ function getLocation() {
         showError("Failed to get location", "Geolocation is not supported or permisison is not granted. Try search with input field below.");
     }
 }
-getId('city-input').oninput = function () {
+getById('city-input').oninput = function () {
     const input = this.value;
-    getId('save').style.display = 'none';
+    getById('save').style.display = 'none';
     if (timeOut) {
         clearTimeout(timeOut);
     }
@@ -449,45 +449,45 @@ getId('city-input').oninput = function () {
     }, 1000);
 
 }
-getId('city-input').onchange = function () {
+getById('city-input').onchange = function () {
     this.blur();
     clearTimeout(timeOut)
     const index = cityData.findIndex(item => item.display_name === this.value);
     if (index > -1) {
         const lat = cityData[index].lat;
         const lon = cityData[index].lon;
-        getId('city-name-suggestions').innerHTML = '';
+        getById('city-name-suggestions').innerHTML = '';
         cityData = cityData[index];
         this.value = getLocationName();
-        getId('save').style.display = 'block';
+        getById('save').style.display = 'block';
         fetchOwmData(lat, lon);
     } else {
         console.error('No data found for the selected city.' + index);
     }
 }
-getId('city-input').onfocus = function () {
+getById('city-input').onfocus = function () {
     if (window.innerWidth < window.innerHeight) {
-        getId('controls').style.display = 'none';
-        getId('footer').style.display = 'none';
+        getById('controls').style.display = 'none';
+        getById('footer').style.display = 'none';
     }
 }
-getId('city-input').onblur = function () {
-    getId('controls').style.display = 'flex';
-    getId('footer').style.display = 'flex';
+getById('city-input').onblur = function () {
+    getById('controls').style.display = 'flex';
+    getById('footer').style.display = 'flex';
 }
-getId('save').onclick = function (e) {
+getById('save').onclick = function (e) {
     e.preventDefault();
     localStorage.setItem('mylat', owmData.lat);
     localStorage.setItem('mylon', owmData.lon);
     localStorage.setItem('locName', cityData.name);
-    getId('save').style.display = 'none';
+    getById('save').style.display = 'none';
 }
 function getCityNames(query) {
     const apiUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&accept-language=${locale}&format=json`;
     fetch(apiUrl)
         .then(response => response.json())
         .then(data => {
-            let datalist = getId('city-name-suggestions');
+            let datalist = getById('city-name-suggestions');
             datalist.innerHTML = '';
             if (data.length > 0) {
                 cityData = data;
@@ -498,7 +498,7 @@ function getCityNames(query) {
                 })
             } else {
                 datalist.innerHTML = '';
-                let field = getId('city-input');
+                let field = getById('city-input');
                 field.setCustomValidity("No city found!");
                 field.reportValidity();
                 console.log("No suggestions for ", query);
@@ -515,7 +515,7 @@ window.onresize = function () {
 }
 
 function initializeWindow() {
-    getId('dark-mode').checked = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    getById('dark-mode').checked = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
     setTheme();
 }
 initializeWindow();
