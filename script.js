@@ -3,6 +3,17 @@ var cityData = [];
 var timeOut = null;
 var customMarkers = [];
 var chart = null;
+
+const STORAGE_KEY_LATITUDE = 'mylat';
+const STORAGE_KEY_LONGITUDE = 'mylon';
+const STORAGE_KEY_LOCATION_NAME = 'locName';
+//PREFs
+const STORAGE_KEY_CHART_UNIT = 'chartMeasurementUnit';
+const STORAGE_KEY_SPEED_IN_KMPH = 'speedInKmph';
+const STORAGE_KEY_SHOW_WEATHER_ICONS = 'showWeatherIcons';
+const STORAGE_KEY_DARK_THEME = 'preferDarkMode';
+const STORAGE_KEY_ALT_THEME = 'useAltTheme';
+
 const locale = window.navigator.language.split('-')[0];
 const constants = { UNITS: { METRIC: "metric", IMPERIAL: "imperial", STANDARD: "standard" }, VISIBILITY: { VISIBLE: "visible", HIDDEN: "hidden" } }
 function getStrings() {
@@ -30,30 +41,31 @@ function convertSpeed() {
 function chosenUnitSystem() {
     return document.querySelector('input[name="unit-radio"]:checked').value;
 }
-const unitRadios = getById("unit-systems-boxes");
-unitRadios.childNodes.forEach(function (unitsystem) {
-    unitsystem.addEventListener('click', function () {
-        const nowSelected = unitsystem.querySelector('input[type="radio"]');
-        getById(nowSelected.value).checked = true;
-        getById('convert-speed').disabled = nowSelected.id == constants.UNITS.IMPERIAL ? true : false;
+
+document.getElementsByName('unit-radio').forEach(radio => {
+    radio.addEventListener('click', function () {
+        localStorage.setItem(STORAGE_KEY_CHART_UNIT, this.value);
+        getById('convert-speed').disabled = this.value == constants.UNITS.IMPERIAL ? true : false;
         chart.options.data = [getWeatherObject(), getTemperatureObject(), getHumidityObject(), getWindObject()];
         chart.render();
         refreshCustomMarker();
     });
 });
-
-getById('convert-speed-box').addEventListener('click', function () {
-    if (chosenUnitSystem() != constants.UNITS.IMPERIAL) getById('convert-speed').checked = getById('convert-speed').checked ? false : true
+getById('convert-speed').addEventListener('click', function () {
+    localStorage.setItem(STORAGE_KEY_SPEED_IN_KMPH, this.checked);
     chart.options.data[3] = getWindObject();
     chart.render();
 });
-getById('show-icons-box').addEventListener('click', function () {
+getById('show-icons').addEventListener('click', function () {
+    localStorage.setItem(STORAGE_KEY_SHOW_WEATHER_ICONS, this.checked);
     refreshCustomMarker();
 });
-getById('theme-alt-box').addEventListener('click', function () {
+getById('theme-alt').addEventListener('click', function () {
+    localStorage.setItem(STORAGE_KEY_ALT_THEME, this.checked);
     setTheme();
 });
-getById('dark-mode-box').addEventListener('click', function () {
+getById('dark-mode').addEventListener('click', function () {
+    localStorage.setItem(STORAGE_KEY_DARK_THEME, this.checked);
     setTheme();
 });
 getById('reset-city').addEventListener('click', function () {
@@ -94,7 +106,7 @@ function setTheme() {
     chart?.render();
     const bgColor = (getById('theme-alt').checked) ? "#32373a" : "#2a2a2a";
     document.body.style = nightMode ? `background-color: ${bgColor};color: #dadada;` : 'background-color: #fff;color: #000;';
-    }
+}
 function getUnit(index) {
     if (convertSpeed() && index === 1) return (chosenUnitSystem() != constants.UNITS.IMPERIAL) ? 'kmph' : 'mph';
     switch (chosenUnitSystem()) {
@@ -426,8 +438,8 @@ function fetchWithCurrentLocation(position) {
     }
 }
 function getLocation() {
-    const myLat = localStorage.getItem('mylat');
-    const myLon = localStorage.getItem('mylon');
+    const myLat = localStorage.getItem(STORAGE_KEY_LATITUDE);
+    const myLon = localStorage.getItem(STORAGE_KEY_LONGITUDE);
     if (myLat & myLon) {
         fetchOwmData(myLat, myLon);
     } else if (navigator.geolocation) {
@@ -477,9 +489,9 @@ getById('city-input').onblur = function () {
 }
 getById('save').onclick = function (e) {
     e.preventDefault();
-    localStorage.setItem('mylat', owmData.lat);
-    localStorage.setItem('mylon', owmData.lon);
-    localStorage.setItem('locName', cityData.name);
+    localStorage.setItem(STORAGE_KEY_LATITUDE, owmData.lat);
+    localStorage.setItem(STORAGE_KEY_LONGITUDE, owmData.lon);
+    localStorage.setItem(STORAGE_KEY_LOCATION_NAME, cityData.name);
     getById('save').style.display = 'none';
 }
 function getCityNames(query) {
@@ -515,11 +527,25 @@ window.onresize = function () {
 }
 
 function initializeWindow() {
-    getById('dark-mode').checked = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    setTheme();
+    const chartUnit = localStorage.getItem(STORAGE_KEY_CHART_UNIT);
+    const chosenUnit = chartUnit ? chartUnit : 'metric';
+    const speedInKmph = localStorage.getItem(STORAGE_KEY_SPEED_IN_KMPH);
+    const showWeatherIcons = localStorage.getItem(STORAGE_KEY_SHOW_WEATHER_ICONS);
+    const preferDarkTheme = localStorage.getItem(STORAGE_KEY_DARK_THEME);
+    const darkMode = preferDarkTheme === 'true';
+    const useAltTheme = localStorage.getItem(STORAGE_KEY_ALT_THEME);
+    document.querySelector(`input[name="unit-radio"][id="${chosenUnit}"]`).checked = true;
+    getById('convert-speed').disabled = chosenUnit == constants.UNITS.IMPERIAL;
+    getById('convert-speed').checked = speedInKmph ? speedInKmph == 'true' : true;
+    getById('show-icons').checked = showWeatherIcons ? showWeatherIcons == 'true' : true;
+    getById('theme-alt').checked = useAltTheme ? useAltTheme == 'true' : true;
+    //when system is in dark mode it shows dark theme by default, otherwise follows preference
+    getById('dark-mode').checked = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? true : darkMode;
     setTheme();
 }
 initializeWindow();
-showError("Loading...", "")
+showError("Loading...", "");
 getLocation();
 if ("serviceWorker" in navigator) {
     window.addEventListener("load", function () {
