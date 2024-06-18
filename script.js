@@ -471,7 +471,7 @@ getById('city-input').onchange = function () {
         getById('city-name-suggestions').innerHTML = '';
         cityData = cityData[index];
         this.value = getLocationName();
-        getById('save').style.display = 'block';
+        getById('save').style.display = 'inline-block';
         fetchOwmData(lat, lon);
     } else {
         console.error('No data found for the selected city.' + index);
@@ -484,8 +484,10 @@ getById('city-input').onfocus = function () {
     }
 }
 getById('city-input').onblur = function () {
-    getById('controls').style.display = 'flex';
-    getById('footer').style.display = 'flex';
+    if (this.value == "") {
+        getById('controls').style.display = 'flex';
+        getById('footer').style.display = 'flex';
+    }
 }
 getById('save').onclick = function (e) {
     e.preventDefault();
@@ -493,6 +495,11 @@ getById('save').onclick = function (e) {
     localStorage.setItem(STORAGE_KEY_LONGITUDE, owmData.lon);
     localStorage.setItem(STORAGE_KEY_LOCATION_NAME, cityData.name);
     getById('save').style.display = 'none';
+    getById('city-input').value = '';
+    if (window.innerWidth < window.innerHeight) {
+        getById('controls').style.display = 'flex';
+        getById('footer').style.display = 'flex';
+    }
 }
 function getCityNames(query) {
     const apiUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&accept-language=${locale}&format=json`;
