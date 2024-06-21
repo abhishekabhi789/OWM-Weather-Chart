@@ -15,7 +15,9 @@ body {
     font-family: Tahoma, sans-serif;
     overflow: hidden;
 }
-
+.error-message{
+    margin: 20px;
+}
 .chart-container {
     display: inline-block;
     width: 100%;

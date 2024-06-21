@@ -75,7 +75,7 @@ getById('reset-city').addEventListener('click', function () {
 });
 function showError(title, message) {
     let errorContainer = document.createElement('div');
-    errorContainer.className = 'errorMessage'
+    errorContainer.className = 'error-message'
     let h1 = document.createElement('h1');
     h1.innerText = title;
     errorContainer.appendChild(h1)
@@ -388,7 +388,7 @@ function fetchOwmData(lat, lon) {
     console.log("fetching data")
     //const apikey = "OWM_API_KEY";
     //const apiUrl = `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&lang=${locale}&exclude=current,minutely,daily&appid=${apikey}`;
-    const apiUrl = `https://abhishekabhi789.pythonanywhere.com/owm?lat=${lat}&lon=${lon}&locale=${locale}`
+    const apiUrl = `https://owmweatherchart.pythonanywhere.com/owm?lat=${lat}&lon=${lon}&locale=${locale}`
     fetch(apiUrl)
         // fetch("/owm.json") //debug
         .then(response => {

@@ -9,7 +9,7 @@ load_dotenv(".env")
 API_KEY = os.environ["OWM_API_KEY"]
 ALLOWED_ORIGIN = os.environ["WEBAPP_URL"]
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins=[ALLOWED_ORIGIN])
 DAILY_CALL_LIMIT = 500
 
 def reset_count():
