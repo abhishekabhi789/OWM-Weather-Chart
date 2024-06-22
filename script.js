@@ -14,21 +14,43 @@ const STORAGE_KEY_SHOW_WEATHER_ICONS = 'showWeatherIcons';
 const STORAGE_KEY_DARK_THEME = 'preferDarkMode';
 const STORAGE_KEY_ALT_THEME = 'useAltTheme';
 
-const locale = window.navigator.language.split('-')[0];
 const constants = { UNITS: { METRIC: "metric", IMPERIAL: "imperial", STANDARD: "standard" }, VISIBILITY: { VISIBLE: "visible", HIDDEN: "hidden" } }
-function getStrings() {
+
+function updateUILabels(strings) {
+    const labels = strings
+    document.querySelector('label[for="standard"]').textContent = labels.standard;
+    document.querySelector('label[for="metric"]').textContent = labels.metric;
+    document.querySelector('label[for="imperial"]').textContent = labels.imperial;
+    document.querySelector('label[for="convert-speed"]').textContent = labels.convertSpeed;
+    document.querySelector('label[for="show-icons"]').textContent = labels.showIcons;
+    document.querySelector('label[for="dark-mode"]').textContent = labels.darkMode;
+    document.querySelector('label[for="theme-alt"]').textContent = labels.themeAlt;
+    document.getElementById('city-input').placeholder = labels.searchPlaceholder;
+    document.getElementById('reset-city').textContent = labels.reset;
+    document.getElementById('save').textContent = labels.setDefault;
+}
+
+function getLocaleAndStrings() {
     const xhr = new XMLHttpRequest();
     xhr.open('GET', 'strings.json', false);
     xhr.send();
     if (xhr.status === 200) {
-        return JSON.parse(xhr.responseText)[locale];
+        const strings = JSON.parse(xhr.responseText);
+        const systemLocale = window.navigator.language.split('-')[0];
+        const supportedLocales = Object.keys(strings);
+        if (supportedLocales.includes(systemLocale)) {
+            return [systemLocale, strings[systemLocale]];
+        }
+        else {
+            return ["en", strings["en"]];
+        }
     } else {
         console.error('Error fetching strings JSON:', xhr.status);
-        showError('loading error', 'Failed to load resources!');
+        showError(strings.loading, strings.failedToLoadResources);
         return null;
     }
 }
-const strings = getStrings();
+const [locale, strings] = getLocaleAndStrings();
 function getById(el) {
     return document.getElementById(el);
 }
@@ -390,21 +412,21 @@ function fetchOwmData(lat, lon) {
     //const apiUrl = `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&lang=${locale}&exclude=current,minutely,daily&appid=${apikey}`;
     const apiUrl = `https://owmweatherchart.pythonanywhere.com/owm?lat=${lat}&lon=${lon}&locale=${locale}`
     fetch(apiUrl)
-        // fetch("/owm.json") //debug
+    // fetch("/owm.json") //debug
         .then(response => {
             if (!response.ok) {
-                showError("Network Error", "Reload or try again after sometime\n" + response.error);
+                showError(strings.networkError, strings.reloadOrTryAgain + response.error);
                 throw new Error('Network response was not ok.');
             }
             return response.json();
         })
         .then(data => {
             owmData = data;
-            (!data.error) ? prepareChart(data) : showError('request failed', data.error);
+            (!data.error) ? prepareChart(data) : showError(strings.requestFailed, data.error);
         })
         .catch(error => {
             console.error('Error fetching data:', error);
-            showError("Failed to fetch data", "Reload or try again after sometime \n" + error);
+            showError(strings.failedToFetchData, strings.reloadOrTryAgainData+ error);
         });
 }
 
@@ -430,10 +452,10 @@ function fetchWithCurrentLocation(position) {
     try {
         let lat = position.coords.latitude;
         let lon = position.coords.longitude;
-        showError("Hold on...", "Contacting servers")
+        showError(strings.holdOn, strings.contactingServers)
         fetchOwmData(lat, lon);
     } catch (error) {
-        showError("Failed to get location", "Try search with input field below.");
+        showError(strings.failedToGetLocation, strings.trySearchWithInput);
         console.error("failed to get location", error);
     }
 }
@@ -443,11 +465,11 @@ function getLocation() {
     if (myLat & myLon) {
         fetchOwmData(myLat, myLon);
     } else if (navigator.geolocation) {
-        showError("Location info needed", "Location information is needed to get weather data for you.")
+        showError(strings.locationInfoNeeded, strings.locationInfoIsNeeded)
         navigator.geolocation.getCurrentPosition(fetchWithCurrentLocation, null, { enableHighAccuracy: true });
     } else {
         console.error("Geolocation is not supported by this browser.");
-        showError("Failed to get location", "Geolocation is not supported or permisison is not granted. Try search with input field below.");
+        showError(strings.failedToGetLocation, strings.geolocationNotSupported);
     }
 }
 getById('city-input').oninput = function () {
@@ -532,7 +554,12 @@ window.onresize = function () {
         refreshCustomMarker();
     }
 }
-
+function setServerStatus(){
+    const statusBadgeUrl = `https://img.shields.io/website?url=https%3A%2F%2Fowmweatherchart.pythonanywhere.com%2Fowmcount&up_message=${strings.upMessage}&down_message=${strings.downMessage}&style=flat-square&label=${strings.server}`;
+    getById('server-status').src = statusBadgeUrl;
+    const quotaBadgeUrl  = `https://img.shields.io/endpoint?url=https%3A%2F%2Fowmweatherchart.pythonanywhere.com%2Fquotabadge&label=${strings.dailyQuota}&logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MjYuNjY2NyA0MjYuNjY2NyIgd2lkdGg9IjQyNi42NjY3IiBoZWlnaHQ9IjQyNi42NjY3Ij4KICAgIDxwYXRoIGZpbGw9IiMwMDAwMDAiIGQ9Ik0xNzAuNjYzOCA0LjI2OCAxNzAuNjY0NiA0OC4wNDM5Qzk3LjA1NTkgNjYuOTkwNSA0Mi42NjY3IDEzMy44MTAzIDQyLjY2NjcgMjEzLjMzMzMgNDIuNjY2NyAzMDcuNTg5OSAxMTkuMDc2NyAzODQgMjEzLjMzMzMgMzg0IDI5Mi44NTY1IDM4NCAzNTkuNjc2NCAzMjkuNjEwNSAzNzguNjIyOCAyNTYuMDAxN0w0MjIuMzk4OSAyNTYuMDAxOUM0MDIuNjMxOSAzNTMuMzc2NSAzMTYuNTQxNSA0MjYuNjY2NyAyMTMuMzMzMyA0MjYuNjY2NyA5NS41MTI2IDQyNi42NjY3IDAgMzMxLjE1NDEgMCAyMTMuMzMzMyAwIDExMC4xMjU1IDczLjI4OTYgMjQuMDM1MyAxNzAuNjYzOCA0LjI2OFpNMjEzLjMzMzMtMEMzMjkuOTc1OS0wIDQyNC43NTQyIDkzLjYxMTkgNDI2LjYzODEgMjA5LjgwNTVMNDI2LjY2NjcgMjEzLjMzMzMgMjEzLjMzMzMgMjEzLjMzMzMgMjEzLjMzMzMtMCIgLz4KPC9zdmc+Cg==`;
+    getById('quota-badge').src = quotaBadgeUrl;
+}
 function initializeWindow() {
     setTheme();
     const chartUnit = localStorage.getItem(STORAGE_KEY_CHART_UNIT);
@@ -550,9 +577,11 @@ function initializeWindow() {
     //when system is in dark mode it shows dark theme by default, otherwise follows preference
     getById('dark-mode').checked = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? true : darkMode;
     setTheme();
+    updateUILabels(strings);
+    setServerStatus()
 }
 initializeWindow();
-showError("Loading...", "");
+showError(strings.loading, "");
 getLocation();
 if ("serviceWorker" in navigator) {
     window.addEventListener("load", function () {
